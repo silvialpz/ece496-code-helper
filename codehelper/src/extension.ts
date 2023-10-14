@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { mainTest } from './openai_config';
+import { CodeBuddyProvider } from './codeBuddy';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -20,6 +21,10 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Hello World from CodeHelper!');
 		mainTest();
 	});
+
+	vscode.window.createTreeView('code-buddy', {
+		treeDataProvider: new CodeBuddyProvider("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");
+	})
 
 	context.subscriptions.push(disposable);
 }

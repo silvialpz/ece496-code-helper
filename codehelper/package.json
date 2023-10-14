@@ -12,14 +12,29 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "code-buddy",
+          "title": "UofT Code Buddy",
+          "icon": "resources/robot-love.svg"
+        }
+      ]
+    },
+    "views":{
+      "code-buddy":
+      [
+        {
+          "id": "codeBuddy",
+          "name": "UofT Code Buddy",
+          "icon": "resources/robot-love.svg"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "codehelper.helloWorld",
         "title": "Hello World"
-      },
-      {
-        "command": "codehelper.chat",
-        "title": "Chatting"
       }
     ]
   },

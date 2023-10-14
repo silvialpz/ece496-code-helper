@@ -5,6 +5,7 @@ exports.deactivate = exports.activate = void 0;
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
 const openai_config_1 = require("./openai_config");
+const codeBuddy_1 = require("./codeBuddy");
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 function activate(context) {
@@ -19,6 +20,9 @@ function activate(context) {
         // Display a message box to the user
         vscode.window.showInformationMessage('Hello World from CodeHelper!');
         (0, openai_config_1.mainTest)();
+    });
+    vscode.window.createTreeView('code-buddy', {
+        treeDataProvider: new codeBuddy_1.CodeBuddyProvider("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")
     });
     context.subscriptions.push(disposable);
 }
