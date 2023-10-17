@@ -1,35 +1,30 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { mainTest } from './openai_config';
-import { CodeBuddyProvider } from './codeBuddy';
+import { mainTest } from './configOpenAI';
+import { CodeBuddyWebViewProvider } from './codeBuddy';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	console.log('Code Buddy extension is now active!');
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "codehelper" is now active!');
+	// Test chatgpt online
+	mainTest();
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('codehelper.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from CodeHelper!');
-		mainTest();
-	});
+	const provider = new CodeBuddyWebViewProvider(context.extensionUri);
 
-	vscode.window.createTreeView('code-buddy', {
-		treeDataProvider: new CodeBuddyProvider("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");
-	})
+	// Register the webview view provider for the extension view on the sidebar
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(
+			"code-buddy.view",
+			provider
+		));
 
-	context.subscriptions.push(disposable);
+	// Register the command to check compile errors
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			"code-buddy.checkCompileErrors",
+			() => {
+				provider.checkCompileErrors();
+			}));
 }
-
-
 
 // This method is called when your extension is deactivated
 export function deactivate() {}

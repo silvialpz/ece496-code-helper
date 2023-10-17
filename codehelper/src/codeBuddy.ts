@@ -1,39 +1,58 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
-import OpenAI from 'openai';
 
+export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
+    public static readonly viewType = 'code-buddy.view';
 
-export class CodeBuddyProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-    constructor(private apiKey: string) {
-        this.openAITest();
-        console.log("in constructor");
+    private _view?: vscode.WebviewView;
+
+    constructor(
+		private readonly _extensionUri: vscode.Uri,
+	) { }
+
+    resolveWebviewView(
+        webview: vscode.WebviewView,
+        thiswebviewContext: vscode.WebviewViewResolveContext,
+        token: vscode.CancellationToken
+        ): void | Thenable<void> {
+
+        webview.webview.options = {enableScripts:true};
+        webview.webview.html = this._getHtmlForWebview(webview.webview);
     }
 
-    getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
-        this.openAITest();
-        console.log("in getTreeItem");
-        return element;
+    public checkCompileErrors() {
+        if (this._view) {
+            this._view.show?.(true);
+            this._view.webview.postMessage({ type: 'checkCompileErrors' });
+        }
     }
 
-    getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
-        return Promise.resolve([]);
+    private _getHtmlForWebview(webview: vscode.Webview): string {
+        const scriptUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js')
+        );
+
+        const nonce = getNonce();
+        
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started</title>
+</head>
+<body>
+    <button class="check-compile-errors-button">Check Compile Errors</button>
+    <script nonce="${nonce}" src="${scriptUri}"></script>
+</body>
+</html>`;
     }
+}
 
-    private async openAITest(){
-        const openai = new OpenAI({
-            apiKey: this.apiKey,
-        });
-
-        console.log("Contacting ChatGPT.");
-        const completion = await openai.chat.completions.create(
-        {
-            model: 'gpt-3.5-turbo',
-            messages: [{ role: 'user', content: 'Say this is a test' }],
-        });
-
-        console.log(completion.choices[0].message.content);
-    }
-
-
+function getNonce() {
+	let text = '';
+	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	for (let i = 0; i < 32; i++) {
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
+	}
+	return text;
 }
