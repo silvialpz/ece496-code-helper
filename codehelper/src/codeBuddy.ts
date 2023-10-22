@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as codeBuddyCompile from './codeBuddyCompile';
 
 export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'code-buddy.view';
@@ -17,6 +18,22 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
 
         webview.webview.options = {enableScripts:true};
         webview.webview.html = this._getHtmlForWebview(webview.webview);
+        webview.webview.onDidReceiveMessage(
+            (message) => {
+                switch (message.command) {
+                    case "compile":
+                        let compileResult = Promise.resolve(codeBuddyCompile.cCompile(
+                            "gcc",
+                            "this",
+                            "there"
+                        ));
+                        compileResult.then((val) => {
+                            webview.webview.postMessage(val);
+                        });
+                        
+                }
+            }
+        );
     }
 
     public checkCompileErrors() {
@@ -32,19 +49,22 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
         );
 
         const nonce = getNonce();
+
+        let webviewHtml = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Get Started</title>
+        </head>
+        <body>
+            <button id="compile-button">Check Compile Errors</button>
+            <script nonce="${nonce}" src="${scriptUri}"></script>
+        </body>
+        </html>`;
         
-        return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Started</title>
-</head>
-<body>
-    <button class="check-compile-errors-button">Check Compile Errors</button>
-    <script nonce="${nonce}" src="${scriptUri}"></script>
-</body>
-</html>`;
+        return webviewHtml; 
     }
 }
 

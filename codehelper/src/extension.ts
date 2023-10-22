@@ -6,7 +6,7 @@ export function activate(context: vscode.ExtensionContext) {
 	console.log('Code Buddy extension is now active!');
 
 	// Test chatgpt online
-	mainTest();
+	// mainTest();
 
 	const provider = new CodeBuddyWebViewProvider(context.extensionUri);
 
@@ -15,7 +15,8 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.registerWebviewViewProvider(
 			"code-buddy.view",
 			provider
-		));
+		)
+    );
 
 	// Register the command to check compile errors
 	context.subscriptions.push(
@@ -23,7 +24,9 @@ export function activate(context: vscode.ExtensionContext) {
 			"code-buddy.checkCompileErrors",
 			() => {
 				provider.checkCompileErrors();
-			}));
+			}
+        )
+    );
 }
 
 // This method is called when your extension is deactivated
