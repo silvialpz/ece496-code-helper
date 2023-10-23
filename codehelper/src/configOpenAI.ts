@@ -22,3 +22,13 @@ export async function mainTest() {
   
     console.log(completion.choices);
 }
+
+export async function promptChatGpt(prompt: string) {
+    console.log("Sending prompt to ChatGPT");
+    const completion = await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: prompt }]
+    });
+
+    return completion;
+}

@@ -16,6 +16,7 @@
 
         switch(msgtype) {
             case 1:
+                // Testing
                 const p = document.createElement("p");
                 p.innerText = `Compile failed!
                 Line: ${data.content.line}
@@ -23,6 +24,12 @@
                 Function: ${data.content.func}
                 Error msg: ${data.content.errormsg}`;
                 document.body.append(p);
+                break;
+            case 2:
+                // Print ChatGPT response to the webview
+                const r = document.createElement("p");
+                r.innerText = data.message;
+                document.body.append(r);
                 break;
             default:
                 const q = document.createElement("p");

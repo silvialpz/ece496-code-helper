@@ -78,7 +78,7 @@ export function cCompile(compilePath: string, inPath: string, outPath: string) {
     let out: string = "";
 
     // gcc args like -Wall, -g -O0, etc.
-    let args: string[] = ["-Wall"];
+    let args: string[] = ["-Wall", "-Werror"];
 
     // Get the path of root folder of the currently open project
     // Produce an error if no folder is open
@@ -109,7 +109,7 @@ export function cCompile(compilePath: string, inPath: string, outPath: string) {
     let parserData: any = 1;
 
     // Compile with -Wall, we will get back stdout and stderr from the spawned child process
-    let prom = new Promise((resolve) => {
+    let prom: Promise<{ type: number, message: string, content: CError }> = new Promise((resolve) => {
         execFile("gcc", [...args, "-o", out, currentFile], (error, stdout, stderr) => {
         if(error) {
             // If we get an error, compilation failed

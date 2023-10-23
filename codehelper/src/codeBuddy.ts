@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as codeBuddyCompile from './codeBuddyCompile';
+import { promptChatGpt } from './configOpenAI';
 
 export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'code-buddy.view';
@@ -28,7 +29,51 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
                             "there"
                         ));
                         compileResult.then((val) => {
-                            webview.webview.postMessage(val);
+                            // This commented line would display the results of parsing in
+                            // the webview container
+                            // webview.webview.postMessage(val);
+
+                            switch(val.type) {
+                                case 1:
+                                    if(val.content === null) {
+                                        console.log("content was null");
+                                        return;
+                                    }
+
+                                    // Putting together the prompt to send to ChatGPT
+                                    let errorText: string = `Error on line ${val.content.line}
+                                    in function ${val.content.func}.
+                                    Error message: ${val.content.errormsg}`;
+
+                                    let prompt: string = `Here is a C Compile Time Error: 
+                                    ${errorText}
+                                    Act as a TA for me and tell me what is wrong with my code.
+                                    I am new to programming so please explain in as as simple terms as possible.
+                                    Do not tell me what line to fix.
+                                    Please inform them on what line and in what function the error occurred.`;
+
+                                    let completion = promptChatGpt(prompt);
+                                    completion.then((val) => {
+                                        // Once ChatGPT has responded we send a message to the webview
+                                        // container which will display the response
+                                        let response: string | null = val.choices[0].message.content;
+                                        if(response === null) {
+                                            console.log("response was null");
+                                            return;
+                                        }
+                                        let messageToWebview = {
+                                            type: 2,
+                                            message: response
+                                        };
+                                        webview.webview.postMessage(messageToWebview);
+                                    });
+                                    break;
+
+                                default:
+                                    console.log("default case");
+                                    break;
+                            }
+                            
                         });
                         
                 }
