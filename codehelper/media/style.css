@@ -1,0 +1,76 @@
+button {
+    color: var(--vscode-button-foreground);
+    border: 1px solid var(--vscode-focusBorder);
+    background-color: var(--vscode-button-background);
+    border-radius: 3px;
+    padding: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: bold;
+    outline: none;
+}
+
+button:hover {
+    background-color: var(--vscode-button-hoverBackground);
+}
+
+div.compile-error-container {
+    color: var(--vscode-description);
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.compile-error-item {
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px;
+    margin-top: 5px;
+    border-style: solid;
+    display: flex;
+    align-items: center; /* Align items vertically in the center */
+}
+
+.compile-error-item:hover {
+    background-color: var(--vscode-dropdown-border);
+}
+
+.compile-error-item button {
+    background-color: var(--vscode-button-secondaryBackground);
+    border-color: var(--vscode-button-secondaryBorder);
+    color: var(--vscode-button-secondaryForeground);
+    padding : 5px;
+    margin-left: auto;
+}
+
+.compile-error-item p {
+    margin-right: auto; /* Push the paragraph to the left */
+  }
+
+div.compile-error-item > button:hover {
+    background-color: var(--vscode-button-background);
+}
+
+.dot {
+    height: 30px;
+    width: 30px;
+    margin-left: 7px;
+    background-color: var(--vscode-inputValidation-errorBackground);
+    color: var(--vscode-inputValidation-errorForeground);
+    border-color: var(inputValidation-errorBorder);
+    border-radius: 45%;
+}
+
+.dot > p {
+    display: block;
+    margin-top: 5px;
+    font-size: medium;
+    text-align: center;
+    font-weight: bold;
+}
+
+.compile {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
