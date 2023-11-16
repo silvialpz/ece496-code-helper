@@ -1,18 +1,17 @@
 button {
     color: var(--vscode-button-foreground);
-    border: 1px solid var(--vscode-focusBorder);
+    border-color: var(--vscode-button-background);
     background-color: var(--vscode-button-background);
     border-radius: 3px;
     padding: 8px;
     cursor: pointer;
     font-size: 12px;
-    font-family: inherit;
     font-weight: bold;
-    outline: none;
 }
 
 button:hover {
     background-color: var(--vscode-button-hoverBackground);
+    border: 1px solid var(--vscode-focusBorder);
 }
 
 div.compile-error-container {
@@ -45,7 +44,7 @@ div.compile-error-container {
 
 .compile-error-item p {
     margin-right: auto; /* Push the paragraph to the left */
-  }
+}
 
 div.compile-error-item > button:hover {
     background-color: var(--vscode-button-background);
@@ -69,8 +68,3 @@ div.compile-error-item > button:hover {
     font-weight: bold;
 }
 
-.compile {
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
-}
