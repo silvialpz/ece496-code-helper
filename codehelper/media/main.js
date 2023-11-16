@@ -28,20 +28,26 @@
                 errorCount.innerText = data.content.length;
                 errorCount.parentElement.style.display = "inline-block";
 
+                // We will have max 3 new buttons 
                 // Create each error item
-                data.content.forEach(error => {
+                data.content.forEach((error, index) => {
                     const errorItemContainer = document.createElement("div");
                     const errorItemContent = document.createElement("p");
                     errorItemContainer.className = "compile-error-item";
                     const button = document.createElement("button");
                     errorItemContent.innerText = `Error msg: ${error.errormsg}`;
                     button.innerText = "?";
-                    button.addEventListener("click", () => {
-                        vscode.postMessage({ command: "showerror", line: error.line, charindex: error.charindex, func: error.func, errormsg: error.errormsg });
+                    button.addEventListener( "click", () => {
+                        vscode.postMessage({
+                            command: "explain-error",
+                            line: error.line,
+                            charindex: error.charindex,
+                            func: error.func,
+                            index: index
+                        });
                     });
                     errorItemContainer.append(errorItemContent);
                     errorItemContainer.append(button);
-                    
                     d.append(errorItemContainer);
                 });
                 document.body.append(d);

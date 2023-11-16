@@ -54,34 +54,7 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
 
                                     webview.webview.postMessage(dummyListOfErrors);
 
-                                    // TODO: All of this  will be moved down to the case "explain"
-                                    // Putting together the prompt to send to ChatGPT
-                                    // let errorText: string = `Error on line ${val.content.line}
-                                    // in function ${val.content.func}.
-                                    // Error message: ${val.content.errormsg}`;
-
-                                    // let prompt: string = `Here is a C Compile Time Error: 
-                                    // ${errorText}
-                                    // Act as a TA for me and tell me what is wrong with my code.
-                                    // I am new to programming so please explain in as as simple terms as possible.
-                                    // Do not tell me what line to fix.
-                                    // Please inform them on what line and in what function the error occurred.`;
-
-                                    // let completion = promptChatGpt(prompt);
-                                    // completion.then((val) => {
-                                    //     // Once ChatGPT has responded we send a message to the webview
-                                    //     // container which will display the response
-                                    //     let response: string | null = val.choices[0].message.content;
-                                    //     if (response === null) {
-                                    //         console.log("response was null");
-                                    //         return;
-                                    //     }
-                                    //     let messageToWebview = {
-                                    //         type: 2,
-                                    //         message: response
-                                    //     };
-                                    //     webview.webview.postMessage(messageToWebview);
-                                    // });
+                                    
                                     break;
 
                                 default:
@@ -90,9 +63,43 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
                             }
 
                         });
-                    case "explain":
                         break;
 
+                    case "explain-error":
+                        console.log("explain-error");
+                        
+                        // TODO: All of this  will be moved down to the case "explain"
+                        // Putting together the prompt to send to ChatGPT
+                        let errorText: string = `Error on line ${message.line}
+                        in function ${message.func}.
+                        Error message: ${message.errormsg}`;
+
+                        let prompt: string = `Here is a C Compile Time Error: 
+                        ${errorText}
+                        Act as a TA for me and tell me what is wrong with my code.
+                        I am new to programming so please explain in as as simple terms as possible.
+                        Do not tell me what line to fix.
+                        Please inform them on what line and in what function the error occurred.`;
+                        console.log("im here");
+                        let completion = promptChatGpt(prompt);
+                        completion.then((val) => {
+                            console.log("whathappened");
+                            // Once ChatGPT has responded we send a message to the webview
+                            // container which will display the response
+                            let response: string | null = val.choices[0].message.content;
+                            if (response === null) {
+                                console.log("response was null");
+                                return;
+                            }
+                            let messageToWebview = {
+                                index: message.index,
+                                type: 2,
+                                message: response
+                            };
+                            webview.webview.postMessage(messageToWebview);
+                        });
+
+                        break;
                 }
             }
         );
