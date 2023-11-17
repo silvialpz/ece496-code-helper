@@ -18,15 +18,6 @@ export function activate(context: vscode.ExtensionContext) {
 		)
     );
 
-	// Register the command to check compile errors
-	context.subscriptions.push(
-		vscode.commands.registerCommand(
-			"code-buddy.checkCompileErrors",
-			() => {
-				provider.checkCompileErrors();
-			}
-        )
-    );
 }
 
 // This method is called when your extension is deactivated

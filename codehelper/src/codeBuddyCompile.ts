@@ -69,7 +69,8 @@ function cParse(data: string, filePath: string) {
         errormsg = currline;
     }
 
-    return new CError(line, charindex, func, errormsg);
+    // ARID: please change this so that it returns a list of the errors you find.
+    return [new CError(line, charindex, func, errormsg)];
 }
 
 export function cCompile(compilePath: string, inPath: string, outPath: string) {

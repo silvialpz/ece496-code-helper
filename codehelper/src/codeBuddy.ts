@@ -20,96 +20,59 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
 
         webview.webview.options = { enableScripts: true };
         webview.webview.html = this._getHtmlForWebview(webview.webview);
-        webview.webview.onDidReceiveMessage(
-            (message) => {
-                switch (message.command) {
-                    case "compile":
-                        let compileResult = Promise.resolve(codeBuddyCompile.cCompile(
-                            "gcc",
-                            "this",
-                            "there"
-                        ));
-                        compileResult.then((val) => {                            // This commented line would display the results of parsing in
-                            // the webview container
-                            // webview.webview.postMessage(val);
-
-                            switch (val.type) {
-                                case 1:
-                                    if (val.content === null) {
-                                        console.log("content was null");
-                                        return;
-                                    }
-                                    
-                                    // Display 3 errors 
-                                    let  dummyListOfErrors= {
-                                        type: 1, 
-                                        content:[
-                                        new CError(1, 1, "function", "error1"),
-                                        new CError(1, 1, "function", "error2"),
-                                        new CError(1, 1, "function", "error3"),
-                                        ],
-                                        message: "compilefail"
-                                    };
-
-
-                                    webview.webview.postMessage(dummyListOfErrors);
-
-                                    
-                                    break;
-
-                                default:
-                                    console.log("default case");
-                                    break;
-                            }
-
-                        });
-                        break;
-
-                    case "explain-error":
-                        console.log("explain-error");
-                        
-                        // TODO: All of this  will be moved down to the case "explain"
-                        // Putting together the prompt to send to ChatGPT
-                        let errorText: string = `Error on line ${message.line}
-                        in function ${message.func}.
-                        Error message: ${message.errormsg}`;
-
-                        let prompt: string = `Here is a C Compile Time Error: 
-                        ${errorText}
-                        Act as a TA for me and tell me what is wrong with my code.
-                        I am new to programming so please explain in as as simple terms as possible.
-                        Do not tell me what line to fix.
-                        Please inform them on what line and in what function the error occurred.`;
-                        console.log("im here");
-                        let completion = promptChatGpt(prompt);
-                        completion.then((val) => {
-                            console.log("whathappened");
-                            // Once ChatGPT has responded we send a message to the webview
-                            // container which will display the response
-                            let response: string | null = val.choices[0].message.content;
-                            if (response === null) {
-                                console.log("response was null");
-                                return;
-                            }
-                            let messageToWebview = {
-                                index: message.index,
-                                type: 2,
-                                message: response
-                            };
-                            webview.webview.postMessage(messageToWebview);
-                        });
-
-                        break;
-                }
+        webview.webview.onDidReceiveMessage((message) => {
+            switch (message.command) {
+                case "compile":
+                    this.handleCompileCommand(webview);
+                    break;
+                case "explain-error":
+                    this.handleExplainErrorCommand(message, webview);
+                    break;
             }
-        );
+        });
     }
 
-    public checkCompileErrors() {
-        if (this._view) {
-            this._view.show?.(true);
-            this._view.webview.postMessage({ type: 'checkCompileErrors' });
-        }
+    private handleCompileCommand(webview: vscode.WebviewView): void {
+        let compileResult = Promise.resolve(codeBuddyCompile.cCompile(
+            "gcc",
+            "this",
+            "there"
+        ));
+        compileResult.then((val) => {
+            switch (val.type) {
+                case 1:
+                    if (val.content === null) {
+                        console.log("content was null");
+                        return;
+                    }
+                    webview.webview.postMessage(val);
+                    break;
+                default:
+                    console.log("default case");
+                    break;
+            }
+        });
+    }
+
+    private handleExplainErrorCommand(
+        message: any,
+        webview: vscode.WebviewView
+    ): void {
+        const errorText = `Error on line ${message.line} in function ${message.func}. Error message: ${message.errormsg}`;
+        const prompt = `Here is a C Compile Time Error: ${errorText} Act as a TA for me and tell me what is wrong with my code. I am new to programming so please explain in as as simple terms as possible. Do not tell me what line to fix. Please inform them on what line and in what function the error occurred.`;
+        promptChatGpt(prompt).then((val) => {
+            const response = val.choices[0].message.content;
+            if (response === null) {
+                console.log("response was null");
+                return;
+            }
+            const messageToWebview = {
+                index: message.index,
+                type: 2,
+                message: response,
+            };
+            webview.webview.postMessage(messageToWebview);
+        });
     }
 
     private _getHtmlForWebview(webview: vscode.Webview): string {
