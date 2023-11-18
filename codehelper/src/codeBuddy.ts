@@ -70,7 +70,7 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
         ${errorText}
         Here is the format regarding how I want your response to look like:
         Act as a TA/teacher's assistant for me.
-        First inform me what line and what function the error occured.
+        First inform me what line and what function the error occurred in.
         Then explain to me what is wrong with my code in simple terms as I am new to programming.
         DO NOT tell me how to fix the error.
         DO NOT provide code corrections.
