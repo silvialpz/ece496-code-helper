@@ -39,25 +39,22 @@ div.compile-error-container {
     display: flex;
     flex-direction: row;
     align-items: center; /* Align items vertically in the center */
+    justify-content: space-between;
 }
 
 .compile-error-item:hover {
     background-color: var(--vscode-dropdown-border);
 }
 
-.compile-error-item button {
+.compile-error-item-inner button {
     background-color: var(--vscode-button-secondaryBackground);
     border-color: var(--vscode-button-secondaryBorder);
     color: var(--vscode-button-secondaryForeground);
     padding : 5px;
-    margin-left: auto;
+    /* margin-left: auto; */
 }
 
-.compile-error-item p {
-    margin-right: auto; /* Push the paragraph to the left */
-}
-
-div.compile-error-item > button:hover {
+div.compile-error-item-inner > button:hover {
     background-color: var(--vscode-button-background);
 }
 

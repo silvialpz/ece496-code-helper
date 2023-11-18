@@ -45,7 +45,8 @@ function cParse(data: string, filePath: string) {
 
     while(linesIndex < lines.length) {
         // Find the "in function 'function name'" line
-        while(!lines[linesIndex].includes(filePath) &&
+        while((!lines[linesIndex].includes(filePath) ||
+               lines[linesIndex].includes("note:")) &&
               (!lines[linesIndex].includes("function") ||
                !lines[linesIndex].includes("error:"))) {
             linesIndex++;
@@ -55,7 +56,9 @@ function cParse(data: string, filePath: string) {
 
         // Get rid of the file path at start of line
         currline = lines[linesIndex].slice(filePath.length);
-        if(currline.includes("function") && !currline.includes("error:")) {
+        if(currline.includes("function") &&
+           !currline.includes("error:") &&
+           !currline.includes("note:")) {
             // Function name is contained in single quotations
             // Use split to pick it out
             let currlinesplit = currline.split("'");
@@ -115,10 +118,10 @@ function cParse(data: string, filePath: string) {
         }
         else {
             console.log("cond 4");
+            console.log(lines[linesIndex]);
             continue;
         }
         
-
         // Create new CError and append to errors list
         errors.push(new CError(line, charindex, func, errormsg, linetext));
     }
