@@ -68,10 +68,14 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
 
         const prompt: string = `Here is a C Compile Time Error: 
         ${errorText}
-        Act as a TA for me and tell me what is wrong with my code.
-        I am new to programming so please explain in as as simple terms as possible.
-        Do not tell me what line to fix.
-        Please inform them on what line and in what function the error occurred.`;
+        Here is the format regarding I want your response to look like:
+        Act as a TA/teacher's assistant for me.
+        First inform me what line and what function the error occured.
+        Then explain to me what is wrong with my code in simple terms as I am new to programming.
+        DO NOT tell me how to fix the error.
+        DO NOT provide code corrections.
+        DO NOT tell me what line to fix.
+        Just explain the error in simple terms.`;
 
         promptChatGpt(prompt).then((val) => {
             const response = val.choices[0].message.content;
