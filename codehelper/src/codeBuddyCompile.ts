@@ -6,12 +6,14 @@ export class CError {
     public charindex: number;
     public func: string;
     public errormsg: string;
+    public linetext: string;
 
-    constructor(line: number, charindex: number, func:string, errormsg: string) {
+    constructor(line: number, charindex: number, func:string, errormsg: string, linetext: string) {
         this.line = line;
         this.charindex = charindex;
         this.func = func;
         this.errormsg = errormsg;
+        this.linetext = linetext;
     }
 }
 
@@ -32,45 +34,96 @@ function cParse(data: string, filePath: string) {
     // The first line isn't from gcc output, so we don't need it
     lines = lines.slice(1);
 
+    let errors: CError[] = [];
     let linesIndex = 0;
     let currline: string;
     let line: number = -1;
     let charindex: number = -1;
     let func: string = "";
     let errormsg: string = "";
+    let linetext: string = "";
 
-    // Find the "in function 'function name'" line
-    if(lines[linesIndex].includes(filePath)) {
+    while(linesIndex < lines.length) {
+        // Find the "in function 'function name'" line
+        while(!lines[linesIndex].includes(filePath) &&
+              (!lines[linesIndex].includes("function") ||
+               !lines[linesIndex].includes("error:"))) {
+            linesIndex++;
+            if(linesIndex >= lines.length) { return errors; }
+        }
+        if(linesIndex >= lines.length) { return errors; }
+
+        // Get rid of the file path at start of line
         currline = lines[linesIndex].slice(filePath.length);
-        if(currline.includes("function")) {
+        if(currline.includes("function") && !currline.includes("error:")) {
+            // Function name is contained in single quotations
+            // Use split to pick it out
             let currlinesplit = currline.split("'");
             if(currlinesplit.length < 3) {
+                // Should be at least 3 elements after the split
+                // since at least 2 single quotation marks are expected
                 console.log("oh no!");
                 return {type: 0, message: "errorcantfindfunc", content: null};
             }
+
+            // Function name after the first single quotation
             func = currlinesplit[1];
             linesIndex++;
         }
-    }
-    // Get the line and character reported by gcc
-    // Also get the error message if its on this line
-    if(lines[linesIndex].includes(filePath)) {
-        currline = lines[linesIndex].slice(filePath.length);
-        let currlinesplit = currline.split(":");
-        line = parseInt(currlinesplit[1]);
-        charindex = parseInt(currlinesplit[2]);
-
-        let index = currline.indexOf("error:");
-        if(index === -1) {
-            console.log("noo!");
-            return {type: 0, message: "errorcantfinderror", content: null};
+        else if (!currline.includes("error:")) {
+            console.log("cond 1");
+            continue;
         }
-        currline = currline.slice(index + 6).trim();
-        errormsg = currline;
+
+        if(linesIndex >= lines.length) { return errors; }
+
+        // Get the line and character reported by gcc
+        // Also get the error message if its on this line
+        if(lines[linesIndex].includes(filePath)) {
+            // Get rid of the file path at start of line
+            currline = lines[linesIndex].slice(filePath.length);
+
+            // Error line and charindex separated by :
+            let currlinesplit = currline.split(":");
+            line = parseInt(currlinesplit[1]);
+            charindex = parseInt(currlinesplit[2]);
+
+            // Locate error text by anchoring to "error:"
+            let index = currline.indexOf("error:");
+            if(index === -1) {
+                console.log("cond 2");
+                continue;
+            }
+            currline = currline.slice(index + 6).trim();
+            errormsg = currline;
+            linesIndex++;
+        }
+        else {
+            console.log("cond 3");
+            continue;
+        }
+
+
+        if(linesIndex >= lines.length) { return errors; }
+
+        // Get text of offending line
+        if(lines[linesIndex].includes("|")) {
+            let index = lines[linesIndex].indexOf("|");
+            currline = lines[linesIndex].slice(index + 1);
+            linetext = currline.trim();
+            linesIndex++;
+        }
+        else {
+            console.log("cond 4");
+            continue;
+        }
+        
+
+        // Create new CError and append to errors list
+        errors.push(new CError(line, charindex, func, errormsg, linetext));
     }
 
-    // ARID: please change this so that it returns a list of the errors you find.
-    return [new CError(line, charindex, func, errormsg)];
+    return errors;
 }
 
 export function cCompile(compilePath: string, inPath: string, outPath: string) {
@@ -110,7 +163,7 @@ export function cCompile(compilePath: string, inPath: string, outPath: string) {
     let parserData: any = 1;
 
     // Compile with -Wall, we will get back stdout and stderr from the spawned child process
-    let prom: Promise<{ type: number, message: string, content: CError }> = new Promise((resolve) => {
+    let prom: Promise<{ type: number, message: string, content: CError[] }> = new Promise((resolve) => {
         execFile("gcc", [...args, "-o", out, currentFile], (error, stdout, stderr) => {
         if(error) {
             // If we get an error, compilation failed

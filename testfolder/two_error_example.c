@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-void hello() {
+int hello() {
     int a;
 	int b = 1;
 	int c = 2;
@@ -15,6 +15,8 @@ void hello() {
 
 int main(int argc, char** argv) {
     hello();
+	
+	printf("sup\n");
 
     return 0;
 }

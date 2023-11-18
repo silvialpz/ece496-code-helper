@@ -7,9 +7,10 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'code-buddy.view';
 
     private _view?: vscode.WebviewView;
+    private currErrors: CError[] = [];
 
     constructor(
-        private readonly _extensionUri: vscode.Uri,
+        private readonly _extensionUri: vscode.Uri
     ) { }
 
     resolveWebviewView(
@@ -46,6 +47,7 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
                         return;
                     }
                     webview.webview.postMessage(val);
+                    this.currErrors = val.content;
                     break;
                 default:
                     console.log("default case");
@@ -54,12 +56,23 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
         });
     }
 
-    private handleExplainErrorCommand(
+    private handleExplainErrorCommand (
         message: any,
         webview: vscode.WebviewView
     ): void {
-        const errorText = `Error on line ${message.line} in function ${message.func}. Error message: ${message.errormsg}`;
-        const prompt = `Here is a C Compile Time Error: ${errorText} Act as a TA for me and tell me what is wrong with my code. I am new to programming so please explain in as as simple terms as possible. Do not tell me what line to fix. Please inform them on what line and in what function the error occurred.`;
+        const index = message.index;
+        const errorText: string = `Error on line ${this.currErrors[index].line}
+        in function ${this.currErrors[index].func}.
+        Error message: ${this.currErrors[index].errormsg}
+        Code: ${this.currErrors[index].linetext}`;
+
+        const prompt: string = `Here is a C Compile Time Error: 
+        ${errorText}
+        Act as a TA for me and tell me what is wrong with my code.
+        I am new to programming so please explain in as as simple terms as possible.
+        Do not tell me what line to fix.
+        Please inform them on what line and in what function the error occurred.`;
+
         promptChatGpt(prompt).then((val) => {
             const response = val.choices[0].message.content;
             if (response === null) {
@@ -67,9 +80,9 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
                 return;
             }
             const messageToWebview = {
-                index: message.index,
                 type: 2,
-                message: response,
+                index: message.index,
+                message: response
             };
             webview.webview.postMessage(messageToWebview);
         });
@@ -90,16 +103,18 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
         <html lang="en">
         <head>
             <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="viewport" content="width=device-width initial-scale=1.0">
             <title>Get Started</title>
         </head>
         <body>
             <div class="compile">
                 <button id="compile-button">Check Compile Errors</button>
-                <span style="display: none;", class="dot">
-                    <p id="compile-error-count"><p>
-                </span>
-                <div id="compile-error-container", class="compile-error-container"></div>
+                <div style="display: table-cell;">
+                    <div style="display: none;" class="dot">
+                        <p id="compile-error-count"><p>
+                    </span>
+                </div>
+                <div id="compile-error-container" class="compile-error-container"></div>
             </div>
             
             <script nonce="${nonce}" src="${scriptUri}"></script>

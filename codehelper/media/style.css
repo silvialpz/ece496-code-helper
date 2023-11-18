@@ -14,6 +14,10 @@ button:hover {
     border: 1px solid var(--vscode-focusBorder);
 }
 
+.compile {
+    display: table;
+}
+
 div.compile-error-container {
     color: var(--vscode-description);
     margin-top: 5px;
@@ -27,6 +31,13 @@ div.compile-error-container {
     margin-top: 5px;
     border-style: solid;
     display: flex;
+    flex-direction: column;
+    align-items: center; /* Align items vertically in the center */
+}
+
+.compile-error-item-inner {
+    display: flex;
+    flex-direction: row;
     align-items: center; /* Align items vertically in the center */
 }
 
@@ -58,13 +69,14 @@ div.compile-error-item > button:hover {
     color: var(--vscode-inputValidation-errorForeground);
     border-color: var(inputValidation-errorBorder);
     border-radius: 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .dot > p {
-    display: block;
-    margin-top: 5px;
     font-size: medium;
+    margin: 0px;
     text-align: center;
     font-weight: bold;
 }
-

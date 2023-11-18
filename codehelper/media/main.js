@@ -51,43 +51,46 @@
 
     function createErrorItem(error, index, container) {
         const errorItemContainer = document.createElement("div");
+        const errorItemContainerInner = document.createElement("div");
         const errorItemContent = document.createElement("p");
-        errorItemContainer.className = "compile-error-item";
         const button = document.createElement("button");
+
+        errorItemContainer.className = "compile-error-item";
+        errorItemContainerInner.className = "compile-error-item-inner";
+        // Give it a unique id so its addressable later
+        errorItemContainer.id = `compile-error-id-${index}`;
+
         errorItemContent.innerText = `${error.errormsg}`;
         button.innerText = "?";
-        button.addEventListener( "click", () => {
+        button.addEventListener("click", () => {
             vscode.postMessage({
                 command: "explain-error",
-                line: error.line,
-                charindex: error.charindex,
-                func: error.func,
                 index: index
             });
         });
-        errorItemContainer.append(errorItemContent);
-        errorItemContainer.append(button);
+        errorItemContainerInner.append(errorItemContent);
+        errorItemContainerInner.append(button);
+        errorItemContainer.append(errorItemContainerInner);
         container.append(errorItemContainer);
     }
 
     function handleChatGptResponse(data) {
         // Get the selection from the error container using data.index
-        const selection = document.getElementsByClassName("compile-error-item")[data.index];
+        const selection = document.getElementById(`compile-error-id-${data.index}`);
         // make a copy of the selection
-        const selectionClone = selection.cloneNode(true);
         
         // Hide the button 
-        selectionClone.querySelector("button").style.display = "none";
+        selection.querySelector("button").style.display = "none";
 
         // remove all of the other childern in the container
-        const container = document.getElementById("compile-error-container");
-        container.innerHTML = "";
+        // ^ Why??
+        // const container = document.getElementById("compile-error-container");
+        // container.innerHTML = "";
 
         const chatResponse = document.createElement("p");
         chatResponse.innerText = data.message;
         
-        container.appendChild(selectionClone);
-        container.appendChild(chatResponse);
+        selection.appendChild(chatResponse);
     }
 
     function handleDefaultError() {
