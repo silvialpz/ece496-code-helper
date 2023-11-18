@@ -68,7 +68,7 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
 
         const prompt: string = `Here is a C Compile Time Error: 
         ${errorText}
-        Here is the format regarding I want your response to look like:
+        Here is the format regarding how I want your response to look like:
         Act as a TA/teacher's assistant for me.
         First inform me what line and what function the error occured.
         Then explain to me what is wrong with my code in simple terms as I am new to programming.
