@@ -36,7 +36,7 @@
 
         const errorCount = document.getElementById("compile-error-count");
         errorCount.innerText = data.content.length;
-        errorCount.parentElement.style.display = "inline-block";  // TODO: will probably have to change this when errors are resolved
+        errorCount.parentElement.style.display = "flex";  // TODO: will probably have to change this when errors are resolved
 
         data.content.forEach((error, index) => {
             createErrorItem(error, index, d);

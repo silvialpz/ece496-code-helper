@@ -100,8 +100,6 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
             vscode.Uri.joinPath(this._extensionUri, 'media', 'style.css')
         );
 
-        const nonce = getNonce();
-
         let webviewHtml = `
         <!DOCTYPE html>
         <html lang="en">
@@ -109,32 +107,34 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width initial-scale=1.0">
             <title>Get Started</title>
+            <link href="${styleUri}" rel="stylesheet">
         </head>
         <body>
             <div class="compile">
                 <button id="compile-button">Check Compile Errors</button>
-                <div style="display: table-cell;">
-                    <div style="display: none;" class="dot">
-                        <p id="compile-error-count"><p>
-                    </span>
+                <div class="dot">
+                    <p id="compile-error-count"><p>
                 </div>
                 <div id="compile-error-container" class="compile-error-container"></div>
             </div>
-            
-            <script nonce="${nonce}" src="${scriptUri}"></script>
-            <link href="${styleUri}" rel="stylesheet" nonce="${nonce}">
+
+            <br/>
+
+            <div class="runtime">
+                <button id="runtime-button">Check Runtime Errors</button>
+                <div style="display: table-cell;">
+                    <div class="dot">
+                        <p id="runtime-error-count"><p>
+                    </span>
+                </div>
+                <div id="runtime-error-container" class="runtime-error-container"></div>
+            </div>
+
+            <script src="${scriptUri}"></script>
+                
         </body>
         </html>`;
 
         return webviewHtml;
     }
-}
-
-function getNonce() {
-    let text = '';
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 32; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
 }
