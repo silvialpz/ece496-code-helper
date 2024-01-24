@@ -8,6 +8,7 @@ button {
     background-color: var(--vscode-button-background);
     border-radius: 3px;
     padding: 8px;
+    margin: 2px;
     cursor: pointer;
     font-size: 12px;
     font-weight: bold;
@@ -18,12 +19,11 @@ button:hover {
     border: 1px solid var(--vscode-focusBorder);
 }
 
-.compile, .runtime{
+.control-buttons {
     display: flex;
-    direction: column;
 }
 
-div.compile-error-container {
+div.error-container {
     color: var(--vscode-description);
     margin-top: 5px;
     margin-bottom: 5px;
@@ -37,7 +37,6 @@ div.compile-error-container {
     border-style: solid;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Align items vertically in the center */
 }
 
 .compile-error-item-inner {
@@ -56,7 +55,6 @@ div.compile-error-container {
     border-color: var(--vscode-button-secondaryBorder);
     color: var(--vscode-button-secondaryForeground);
     padding : 5px;
-    margin-left: auto;
 }
 
 .compile-error-item p {
@@ -65,24 +63,4 @@ div.compile-error-container {
 
 div.compile-error-item-inner > button:hover {
     background-color: var(--vscode-button-background);
-}
-
-.dot {
-    height: 30px;
-    width: 30px;
-    margin-left: 7px;
-    background-color: var(--vscode-inputValidation-errorBackground);
-    color: var(--vscode-inputValidation-errorForeground);
-    border-color: var(inputValidation-errorBorder);
-    border-radius: 45%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.dot > p {
-    font-size: medium;
-    margin: 0px;
-    text-align: center;
-    font-weight: bold;
 }

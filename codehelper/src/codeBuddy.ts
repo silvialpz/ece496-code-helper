@@ -110,25 +110,14 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
             <link href="${styleUri}" rel="stylesheet">
         </head>
         <body>
-            <div class="compile">
+            <div class="control-buttons">
                 <button id="compile-button">Check Compile Errors</button>
-                <div class="dot">
-                    <p id="compile-error-count"><p>
-                </div>
-                <div id="compile-error-container" class="compile-error-container"></div>
-            </div>
-
-            <br/>
-
-            <div class="runtime">
                 <button id="runtime-button">Check Runtime Errors</button>
-                <div style="display: table-cell;">
-                    <div class="dot">
-                        <p id="runtime-error-count"><p>
-                    </span>
-                </div>
-                <div id="runtime-error-container" class="runtime-error-container"></div>
             </div>
+
+            <p id="error-count"></p>
+
+            <div id="error-container"></div>
 
             <script src="${scriptUri}"></script>
                 

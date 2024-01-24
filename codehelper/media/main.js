@@ -30,13 +30,12 @@
     }
 
     function handleCompileErrors(data) {
-        const d = document.getElementById("compile-error-container");
+        const d = document.getElementById("error-container");
         // Remove all children
         d.innerHTML = "";
 
-        const errorCount = document.getElementById("compile-error-count");
-        errorCount.innerText = data.content.length;
-        errorCount.parentElement.style.display = "flex";  // TODO: will probably have to change this when errors are resolved
+        const errorCount = document.getElementById("error-count");
+        errorCount.innerText = `Found ${data.content.length} compile time errors.`;
 
         data.content.forEach((error, index) => {
             createErrorItem(error, index, d);
