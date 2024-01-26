@@ -64,3 +64,9 @@ div.error-container {
 div.compile-error-item-inner > button:hover {
     background-color: var(--vscode-button-background);
 }
+
+.section-header {
+    font-size: 1.5em;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+}

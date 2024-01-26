@@ -65,7 +65,6 @@ function cParse(data: string, filePath: string) {
             if(currlinesplit.length < 3) {
                 // Should be at least 3 elements after the split
                 // since at least 2 single quotation marks are expected
-                console.log("oh no!");
                 return {type: 0, message: "errorcantfindfunc", content: null};
             }
 
@@ -129,6 +128,65 @@ function cParse(data: string, filePath: string) {
     return errors;
 }
 
+// Parses output of cppcheck
+function cRunParse(data: string, filePath: string) {
+    // Some error checking
+    if(!data) {
+        return {type: 0, message: "errorempty", content: null};
+    }
+    if(!filePath) {
+        return {type: 0, message: "errorpathnotpassed", content: null};
+    }
+
+    let lines: string[] = data.split("\n");
+    if(lines.length === 1) {
+        return {type: 0, message: "erroroneline", content: null};
+    }
+
+    let errors: CError[] = [];
+    let linesIndex = 0;
+    let currline: string;
+    let line: number = -1;
+    let charindex: number = -1;
+    let func: string = "";
+    let errormsg: string = "";
+    let linetext: string = "";
+
+    while(linesIndex < lines.length) {
+        while(!lines[linesIndex].includes(filePath)) {
+            linesIndex++;
+            if(linesIndex >= lines.length) { return errors; }
+        }
+        if(linesIndex >= lines.length) { return errors; }
+
+        // Get rid of the file path at start of line
+        currline = lines[linesIndex].slice(filePath.length);
+
+        if(currline.includes("error:")) {
+            // Separate error message from rest of line by splitting
+            // at string "error:"
+            let currlinesplit = currline.split("error:");
+
+            // Line number is contained before "error:" and the error message afterwards
+            line = parseInt((currlinesplit[0].split(":"))[1]);
+            charindex = parseInt((currlinesplit[0].split(":"))[2]);
+            errormsg = currlinesplit[1].trim();
+
+            // Next line contains the offending line of code
+            linesIndex++;
+            linetext = lines[linesIndex].trim();
+
+            errors.push(new CError(line, charindex, "undefined", errormsg, linetext));
+            linesIndex++;
+        }
+        else {
+            linesIndex++;
+        }
+    }
+
+    return errors;
+}
+
 export function cCompile(compilePath: string, inPath: string, outPath: string) {
     let cwd: string = "";
     let currentFile: string = "";
@@ -168,18 +226,69 @@ export function cCompile(compilePath: string, inPath: string, outPath: string) {
     // Compile with -Wall, we will get back stdout and stderr from the spawned child process
     let prom: Promise<{ type: number, message: string, content: CError[] }> = new Promise((resolve) => {
         execFile("gcc", [...args, "-o", out, currentFile], (error, stdout, stderr) => {
-        if(error) {
-            // If we get an error, compilation failed
-            // Can perform parsing
-            parserData = {type: 1, message: "compilefail", content: cParse(error.message, currentFile)};
-            resolve(parserData);
-        }
+            if(error) {
+                // If we get an error, compilation failed
+                // Can perform parsing
+                parserData = {type: 1, message: "compilefail", content: cParse(error.message, currentFile)};
+                resolve(parserData);
+            }
+            else {
+                resolve({ type: 0, message: "compilesuccess", content: [] });
+            }
         /*
         console.log("stdout:");
         console.log(stdout);
         console.log("stderr:");
         console.log(stderr);
         */
+        });
+    });
+
+    return prom;
+}
+
+export function cCheck() {
+    let cwd: string = "";
+    let currentFile: string = "";
+    let out: string = "";
+
+    // args to pass to cppcheck
+    let args: string[] = [];
+
+    // Get the path of root folder of the currently open project
+    // Produce an error if no folder is open
+    if(vscode.workspace.workspaceFolders) {
+        cwd = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    }
+    else {
+        vscode.window.showErrorMessage("ERROR: No folders detected in workspace.");
+        return {type: 0, message: "nofolder", content: null};
+    }
+
+    // Get the path of the currently open file, which we will compile
+    // Produce an error if no file is open
+    if(vscode.window.activeTextEditor?.document.uri.fsPath) {
+        currentFile = vscode.window.activeTextEditor.document.uri.fsPath;
+    }
+    else {
+        vscode.window.showErrorMessage("ERROR: No file is currently open.");
+        return {type: 0, message: "nofileopen", content: null};
+    }
+
+    let parserData: any = 1;
+
+    let prom: Promise<{ type: number, message: string, content: CError[] }> = new Promise((resolve) => {
+        execFile("cppcheck", [...args, currentFile], (error, stdout, stderr) => {
+            if(error) {
+                console.log("Error when running cppcheck:");
+                resolve({ type: 0, message: error.message, content: [] });
+            }
+            else if(stderr) {
+                // console.log(stderr);
+                // console.log(`currentFile: ${currentFile}`);
+                parserData = {type: 3, message: "runtimeErrorsDetected", content: cRunParse(stderr, currentFile)};
+                resolve(parserData);
+            }
         });
     });
 
