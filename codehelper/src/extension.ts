@@ -15,7 +15,10 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.registerWebviewViewProvider(
 			"code-buddy.view",
 			provider
-		)
+		),
+        vscode.commands.registerCommand("code-buddy.checkLogicErrors", () => {
+            provider.handleLogicCommand();
+        })
     );
 
 }

@@ -36,8 +36,19 @@
         "command": "code-buddy.checkCompileErrors",
         "category": "UofT Code Buddy",
         "title": "Check Compile Errors"
+      },
+      {
+        "command": "code-buddy.checkLogicErrors",
+        "category": "UofT Code Buddy",
+        "title": "Check Logic Errors"
       }
-    ]
+    ],
+    "menus": {
+        "editor/context": [{
+            "when": "editorHasSelection",
+            "command": "code-buddy.checkLogicErrors"
+        }]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

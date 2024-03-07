@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as codeBuddyCompile from './codeBuddyCompile';
 import { promptChatGpt } from './configOpenAI';
 import { CError } from './codeBuddyCompile';
+import * as fs from 'fs';
 
 export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'code-buddy.view';
@@ -38,6 +39,8 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
                     break;
             }
         });
+
+        this._view = webview;
     }
 
     private handleCompileCommand(webview: vscode.WebviewView): void {
@@ -108,7 +111,52 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
     }
 
     private handleRuntimeCommand(webview: vscode.WebviewView): void {
-        let runtimeCheckResult = Promise.resolve(codeBuddyCompile.cCheck());
+        if(0) {
+            let cwd: string;
+            let cwd2: string;
+            let filePath: string;
+            let cnt: number = 0;
+            if(vscode.workspace.workspaceFolders) {
+                cwd = vscode.workspace.workspaceFolders[0].uri.fsPath;
+                console.log(vscode.workspace.textDocuments.length);
+                fs.readdirSync(cwd).forEach(folder => {
+                    if(folder !== "out.exe") {
+                        cwd2 = cwd + "\\" + folder;
+                        fs.readdirSync(cwd2).forEach(folder2 => {
+                            filePath = cwd2 + "\\" + folder2;
+                            Promise.resolve(codeBuddyCompile.cCheck(filePath)).then((val) => {
+                                if(val.content && val.content.length > 0) {
+                                    val.content.forEach((err, i) => {
+                                        const errorText: string = `Error on line ${err.line}.
+                                        Error message: ${err.errormsg}
+                                        Code: ${err.linetext}`;
+
+                                        const prompt: string = `Here is a description of a C runtime error: 
+                                        ${errorText}
+                                        Here is the format regarding how I want your response to look like:
+                                        Act as a TA/teacher's assistant for me.
+                                        Then explain to me what is wrong with my code in simple terms as I am new to programming.
+                                        DO NOT tell me how to fix the error.
+                                        DO NOT provide code corrections.
+                                        Just explain the error in simple terms.
+                                        Be concise by limiting your response to two paragraphs or less.`;
+
+                                        promptChatGpt(prompt).then((resp) => {
+                                            const response = resp.choices[0].message.content;
+                                            fs.appendFileSync("C:\\Users\\aricl\\Documents\\Code\\ece496-code-helper\\log2.txt",
+                                                               val.message + "\nError " + i.toString() + "\n---\n" + response + "\n---\n\n");
+                                        });
+                                        
+                                    });
+                                }
+                            });
+                        });
+                    }
+                });
+            }
+            return;
+        }
+        let runtimeCheckResult = Promise.resolve(codeBuddyCompile.cCheck(null));
 
         runtimeCheckResult.then((val) => {
             switch(val.type) {
@@ -153,7 +201,6 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
         Just explain the error in simple terms.
         Be concise by limiting your response to one paragraph.`;
 
-        console.log("prompting...");
         promptChatGpt(prompt).then((val) => {
             const response = val.choices[0].message.content;
             if (response === null) {
@@ -168,6 +215,21 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
             };
             webview.webview.postMessage(messageToWebview);
         });
+    }
+
+    handleLogicCommand(): void {
+        if(vscode.window.activeTextEditor) {
+            const selection: vscode.Selection = vscode.window.activeTextEditor.selection;
+            const range = new vscode.Range(
+                selection.start.line, selection.start.character, selection.end.line, selection.end.character
+            );
+            const highlightedText = vscode.window.activeTextEditor.document.getText(range);
+            console.log(highlightedText);
+
+        }
+        else {
+            console.log("Cannot find editor.");
+        }
     }
 
     private _getHtmlForWebview(webview: vscode.Webview): string {

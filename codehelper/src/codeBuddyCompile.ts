@@ -247,7 +247,7 @@ export function cCompile(compilePath: string, inPath: string, outPath: string) {
     return prom;
 }
 
-export function cCheck() {
+export function cCheck(filePath: string | null) {
     let cwd: string = "";
     let currentFile: string = "";
     let out: string = "";
@@ -275,6 +275,10 @@ export function cCheck() {
         return {type: 0, message: "nofileopen", content: null};
     }
 
+    if(filePath) {
+        currentFile = filePath;
+    }
+
     let parserData: any = 1;
 
     let prom: Promise<{ type: number, message: string, content: CError[] }> = new Promise((resolve) => {
@@ -286,7 +290,7 @@ export function cCheck() {
             else if(stderr) {
                 // console.log(stderr);
                 // console.log(`currentFile: ${currentFile}`);
-                parserData = {type: 3, message: "runtimeErrorsDetected", content: cRunParse(stderr, currentFile)};
+                parserData = {type: 3, message: filePath, content: cRunParse(stderr, currentFile)};
                 resolve(parserData);
             }
         });
