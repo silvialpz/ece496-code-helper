@@ -285,13 +285,22 @@ export function cCheck(filePath: string | null) {
         execFile("cppcheck", [...args, currentFile], (error, stdout, stderr) => {
             if(error) {
                 console.log("Error when running cppcheck:");
-                resolve({ type: 0, message: error.message, content: [] });
+                resolve({ type: 1, message: error.message, content: [] });
             }
             else if(stderr) {
                 // console.log(stderr);
                 // console.log(`currentFile: ${currentFile}`);
                 parserData = {type: 3, message: filePath, content: cRunParse(stderr, currentFile)};
-                resolve(parserData);
+                if(parserData.content.length === 0) {
+                    resolve({ type: 0, message: "runtimesuccess", content: [] });
+                }
+                else {
+                    resolve(parserData);
+                }
+            }
+            else {
+                // No stderr output so should be free of runtime errors
+                resolve({ type: 0, message: "runtimesuccess", content: [] });
             }
         });
     });

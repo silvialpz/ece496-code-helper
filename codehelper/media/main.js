@@ -42,6 +42,9 @@
             case 4:
                 handleChatGptResponseRuntime(data);
                 break;
+            case 5:
+                handleChatGptLogicResponse(data);
+                break;
             default:
                 handleDefaultError();
                 break;
@@ -57,6 +60,13 @@
                 msg.innerText = "No compilation errors.";
                 d.innerHTML = "";
                 d.append(msg);
+                break;
+            case "runtimesuccess":
+                const r = document.getElementById("runtime-error-container");
+                const rmsg = document.createElement("p");
+                rmsg.innerText = "No runtime errors.";
+                r.innerHTML = "";
+                r.append(rmsg);
                 break;
             default:
                 break;
@@ -75,7 +85,7 @@
         // Give it a unique id so its addressable later
         errorItemContainer.id = type ? `runtime-error-id-${index}` : `compile-error-id-${index}`;
 
-        errorItemContent.innerText = `${error.errormsg}`;
+        errorItemContent.innerText = `${error.errormsg}\n\n(Occured on line ${error.line})`;
         button.innerText = "?";
         button.addEventListener("click", () => {
             vscode.postMessage({
@@ -169,7 +179,6 @@
     function handleChatGptResponseRuntime(data) {
         // Get the selection from the error container using data.index
         const selection = document.getElementById(`runtime-error-id-${data.index}`);
-        // make a copy of the selection
         
         // Hide the button 
         selection.querySelector("button").style.display = "none";
@@ -183,6 +192,21 @@
         chatResponse.innerText = data.message;
         
         selection.appendChild(chatResponse);
+    }
+
+    function handleChatGptLogicResponse(data) {
+        const d = document.getElementById("logic-error-container");
+        d.innerHTML = "";
+
+        const logicHeader = document.createElement("h1");
+        logicHeader.className = "section-header";
+        logicHeader.innerText = "Logic Errors";
+        d.append(logicHeader);
+
+        const logicContent = document.createElement("p");
+        logicContent.innerHTML = `${data.message}`;
+
+        d.append(logicContent);
     }
  
     function handleDefaultError() {
