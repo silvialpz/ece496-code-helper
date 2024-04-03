@@ -240,17 +240,19 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
             const highlightedText: string = vscode.window.activeTextEditor.document.getText(range);
             console.log(highlightedText);
             
-            const prompt: string = `Here is a piece of code I am working on in C:
+            const prompt: string = `Here is some C code: 
             \`\`\`${highlightedText}\`\`\`
-            Here is the format regarding how I want your response to look like:
+            I want your response to look as follows:
             Act as a TA/teacher's assistant for me.
-            Please help me identify if there are any logical errors or inconsistencies in this code.
-            If there are any logical errors, please ask me questions to help me understand the issue.
-            If you do not see any potential logical errors, then please tell me so.
             DO NOT provide code corrections.
             DO NOT tell me what line to fix.
+            Identify if there are any logic errors or inconsistencies in the code provided.
+            If you do not see any potential logical errors, then tell me.
             Just help me identify any logical errors.
-            I am not unable to respond to you so I cannot provide further input.`;
+            Be concise.
+            If there are any logical errors, please ask me relevant questions to help me understand the issue.
+            I am not unable to respond to you so I cannot provide further input.
+            Dont ask me to respond to you in any type of way.`;
 
             promptChatGpt(prompt).then((val) => {
                 const response = val.choices[0].message.content;
