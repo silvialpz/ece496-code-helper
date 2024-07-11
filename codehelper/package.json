@@ -72,5 +72,6 @@
   },
   "dependencies": {
     "openai": "^4.7.0"
-  }
+  },
+  "publisher": "UofTCodeBuddy"
 }
