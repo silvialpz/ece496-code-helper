@@ -96,17 +96,19 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
         Just explain the error in simple terms.`;
 
         promptChatGpt(prompt).then((val) => {
-            const response = val.choices[0].message.content;
-            if (response === null) {
-                console.log("response was null");
-                return;
+            if (val){
+                const response = val.choices[0].message.content;
+                if (response === null) {
+                    console.log("response was null");
+                    return;
+                }
+                const messageToWebview = {
+                    type: 2,
+                    index: message.index,
+                    message: response
+                };
+                webview.webview.postMessage(messageToWebview);
             }
-            const messageToWebview = {
-                type: 2,
-                index: message.index,
-                message: response
-            };
-            webview.webview.postMessage(messageToWebview);
         });
     }
 
@@ -141,9 +143,11 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
                                     Be concise by limiting your response to two paragraphs or less.`;
 
                                     promptChatGpt(prompt).then((resp) => {
-                                        const response = resp.choices[0].message.content;
-                                        fs.appendFileSync("C:\\Users\\aricl\\Documents\\Code\\ece496-code-helper\\log2.txt",
-                                                            val.message + "\nError " + i.toString() + "\n---\n" + response + "\n---\n\n");
+                                        if(resp){
+                                            const response = resp.choices[0].message.content;
+                                            fs.appendFileSync("C:\\Users\\aricl\\Documents\\Code\\ece496-code-helper\\log2.txt",
+                                                                val.message + "\nError " + i.toString() + "\n---\n" + response + "\n---\n\n");
+                                        }
                                     });
                                     
                                 });
@@ -215,18 +219,20 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
         Be concise by limiting your response to one paragraph.`;
 
         promptChatGpt(prompt).then((val) => {
-            const response = val.choices[0].message.content;
-            if (response === null) {
-                console.log("response was null");
-                return;
+            if(val){
+                const response = val.choices[0].message.content;
+                if (response === null) {
+                    console.log("response was null");
+                    return;
+                }
+                console.log("runtime response");
+                const messageToWebview = {
+                    type: 4,
+                    index: message.index,
+                    message: response
+                };
+                webview.webview.postMessage(messageToWebview);
             }
-            console.log("runtime response");
-            const messageToWebview = {
-                type: 4,
-                index: message.index,
-                message: response
-            };
-            webview.webview.postMessage(messageToWebview);
         });
     }
 
@@ -255,22 +261,24 @@ export class CodeBuddyWebViewProvider implements vscode.WebviewViewProvider {
             Dont ask me to respond to you in any type of way.`;
 
             promptChatGpt(prompt).then((val) => {
-                const response = val.choices[0].message.content;
-                console.log(response);
-                if (response === null) {
-                    console.log("response was null");
-                    return;
-                }
-                console.log("runtime response");
-                const messageToWebview = {
-                    type: 5,
-                    message: response
-                };
-                if(this._view) {
-                    this._view.webview.postMessage(messageToWebview);
-                }
-                else {
-                    console.log("Cannot find webview.");
+                if(val){
+                    const response = val.choices[0].message.content;
+                    console.log(response);
+                    if (response === null) {
+                        console.log("response was null");
+                        return;
+                    }
+                    console.log("runtime response");
+                    const messageToWebview = {
+                        type: 5,
+                        message: response
+                    };
+                    if(this._view) {
+                        this._view.webview.postMessage(messageToWebview);
+                    }
+                    else {
+                        console.log("Cannot find webview.");
+                    }
                 }
             });
         }
