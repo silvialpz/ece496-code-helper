@@ -79,6 +79,7 @@
         const errorItemContainerInner = document.createElement("div");
         const errorItemContent = document.createElement("p");
         const button = document.createElement("button");
+        const spinner = document.createElement("div");
 
         errorItemContainer.className = "compile-error-item";
         errorItemContainerInner.className = "compile-error-item-inner";
@@ -88,14 +89,19 @@
         errorItemContent.innerText = `${error.errormsg}\n\n(Occured on line ${error.line})`;
         button.innerText = "?";
         button.addEventListener("click", () => {
+            document.getElementById(`loadingSpinner-${index}`).style.display = "block";
             vscode.postMessage({
                 command: type ? "explain-runtime-error" : "explain-compile-error",
                 index: index
             });
         });
+        spinner.className = "loading-spinner";
+        spinner.id = `loadingSpinner-${index}`;
+        spinner.style = "display: none;";
         errorItemContainerInner.append(errorItemContent);
         errorItemContainerInner.append(button);
         errorItemContainer.append(errorItemContainerInner);
+        errorItemContainer.append(spinner);
         container.append(errorItemContainer);
     }
 
@@ -136,17 +142,17 @@
     function handleChatGptResponseCompile(data) {
         // Get the selection from the error container using data.index
         const selection = document.getElementById(`compile-error-id-${data.index}`);
-        // make a copy of the selection
         
         // Hide the button 
         selection.querySelector("button").style.display = "none";
 
-        // remove all of the other childern in the container
-        // ^ Why??
-        // const container = document.getElementById("compile-error-container");
-        // container.innerHTML = "";
+        // hide the spinner 
+        document.getElementById(`loadingSpinner-${data.index}`).style.display = "none";
+
+        selection.classList.add("answered");
 
         const chatResponse = document.createElement("p");
+        chatResponse.className = "ai-explanation";
         chatResponse.innerText = data.message;
         
         selection.appendChild(chatResponse);
