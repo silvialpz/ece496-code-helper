@@ -1,8 +1,8 @@
 {
-  "name": "code-buddy",
+  "name": "uoft-code-buddy",
   "displayName": "UofT Code Buddy",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -17,7 +17,7 @@
         {
           "id": "code-buddy",
           "title": "UofT Code Buddy",
-          "icon": "resources/robot-love.svg"
+          "icon": "https://raw.githubusercontent.com/aricleather/ece496-code-helper/7de2fda3661da0161afe7faaca8e25026d92c353/codehelper/resources/robot-love.svg?token=ARVMYVT3JT3XQN7CEERNRO3G4TEFE"
         }
       ]
     },
@@ -26,7 +26,7 @@
         {
           "id": "code-buddy.view",
           "name": "UofT Code Buddy",
-          "icon": "resources/robot-love.svg",
+          "icon": "https://raw.githubusercontent.com/aricleather/ece496-code-helper/7de2fda3661da0161afe7faaca8e25026d92c353/codehelper/resources/robot-love.svg?token=ARVMYVT3JT3XQN7CEERNRO3G4TEFE",
           "type": "webview"
         }
       ]
@@ -44,10 +44,12 @@
       }
     ],
     "menus": {
-        "editor/context": [{
-            "when": "editorHasSelection",
-            "command": "code-buddy.checkLogicErrors"
-        }]
+      "editor/context": [
+        {
+          "when": "editorHasSelection",
+          "command": "code-buddy.checkLogicErrors"
+        }
+      ]
     }
   },
   "scripts": {
@@ -71,7 +73,8 @@
     "mocha": "^10.2.0"
   },
   "dependencies": {
-    "openai": "^4.7.0"
+    "openai": "^4.7.0",
+    "typescript": "^5.6.2"
   },
   "publisher": "UofTCodeBuddy"
 }
